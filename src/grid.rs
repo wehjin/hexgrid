@@ -15,16 +15,20 @@ impl Grid {
 		let size = self.xy_min_max.size_to_cover();
 		(size * spacing as f32) as usize
 	}
-	pub fn to_board_coords(&self, spacing: usize) -> Vec<(f32, f32)> {
-		let board_size = self.board_size(spacing) as f32;
-		let board_center = board_size / 2.;
+	pub fn to_board_coords(&self, spacing: usize) -> (usize, Vec<(f32, f32)>) {
+		let board_size = self.board_size(spacing);
+		let board_center = board_size as f32 / 2.;
 		let spacing = spacing as f32;
-		self.cells.iter().map(|cell| {
-			let (x, y) = cell.0.to_pixel().same_y();
-			let board_x = board_center + (x * spacing);
-			let board_y = board_center + (y * spacing);
-			(board_x, board_y)
-		}).collect()
+		let coords = self.cells.iter()
+			.map(|cell| {
+				let (x, y) = cell.0.to_pixel().same_y();
+				let board_x = board_center + (x * spacing);
+				let board_y = board_center + (y * spacing);
+				(board_x, board_y)
+			})
+			.collect()
+			;
+		(board_size, coords)
 	}
 }
 
@@ -61,7 +65,7 @@ impl MinMax {
 			let half_y = min.abs().max(max.abs()).ceil() + 1.;
 			half_y
 		};
-		2. * half_width.max(half_height) + 1.
+		2. * half_width.max(half_height) - 1.
 	}
 }
 
@@ -90,23 +94,32 @@ mod tests {
 			assert_eq!(grid.len(), count);
 			sizes.push(grid.board_size(1));
 		}
-		assert_eq!(sizes, vec![3, 7, 7, 7, 9])
+		assert_eq!(sizes, vec![1, 5, 5, 5, 7])
 	}
 
 	#[test]
 	fn board_coords1() {
 		let grid = Grid::new(1);
-		assert_eq!(grid.to_board_coords(10), vec![(15., 15.)])
+		assert_eq!(
+			grid.to_board_coords(10),
+			(10, vec![(5.0, 5.0)])
+		)
 	}
 	#[test]
 	fn board_coords2() {
 		let grid = Grid::new(2);
-		assert_eq!(grid.to_board_coords(10), vec![(35., 35.), (50., 26.339746)])
+		assert_eq!(
+			grid.to_board_coords(10),
+			(50, vec![(25.0, 25.0), (40.0, 16.339746)])
+		);
 	}
 	#[test]
 	fn board_coords4() {
 		let grid = Grid::new(4);
-		assert_eq!(grid.to_board_coords(10), vec![(35.0, 35.0), (50.0, 26.339746), (50.0, 43.660255), (35.0, 52.320507)])
+		assert_eq!(
+			grid.to_board_coords(10),
+			(50, vec![(25.0, 25.0), (40.0, 16.339746), (40.0, 33.660255), (25.0, 42.320507)])
+		);
 	}
 }
 
