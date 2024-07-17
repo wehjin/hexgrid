@@ -1,17 +1,18 @@
 use std::ops::{Add, Mul};
+
 use crate::coordinates::pixel_coord::PixelCoord;
-use crate::HEX_SIZE;
 use crate::direction::HexDirection;
+use crate::HEX_SIZE;
 use crate::spiral::HexSpiral;
 
 #[derive(Copy, Clone, Default, PartialEq, Debug)]
-pub struct HexCoord {
+pub struct AxialCoord {
 	pub q: i32,
 	pub r: i32,
 }
 
-impl HexCoord {
-	pub const ORIGIN: Self = HexCoord::new(0, 0);
+impl AxialCoord {
+	pub const ORIGIN: Self = AxialCoord::new(0, 0);
 	pub const fn new(q: i32, r: i32) -> Self { Self { q, r } }
 	pub fn s(&self) -> i32 { -self.q - self.r }
 	pub fn to_pixel(&self) -> PixelCoord {
@@ -50,22 +51,22 @@ impl HexCoord {
 		results
 	}
 
-	pub fn iter_spiral(&self) -> impl Iterator<Item=HexCoord> {
+	pub fn iter_spiral(&self) -> impl Iterator<Item=AxialCoord> {
 		HexSpiral::new(*self)
 	}
 }
 
-impl Add<HexCoord> for HexCoord {
+impl Add<AxialCoord> for AxialCoord {
 	type Output = Self;
 
-	fn add(self, rhs: HexCoord) -> Self::Output {
+	fn add(self, rhs: AxialCoord) -> Self::Output {
 		let q = self.q + rhs.q;
 		let r = self.r + rhs.r;
 		Self { q, r }
 	}
 }
 
-impl Mul<i32> for HexCoord {
+impl Mul<i32> for AxialCoord {
 	type Output = Self;
 
 	fn mul(self, rhs: i32) -> Self::Output {

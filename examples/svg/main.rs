@@ -9,17 +9,19 @@ const FONT_SIZE: usize = CELL_SIZE * 7 / 10;
 
 
 const SANDBOX: &'static str = r#"
-<svg width="300" height="100" fill="lavender" xmlns="http://www.w3.org/2000/svg">
+<svg width="300" height="200" fill="lavender" xmlns="http://www.w3.org/2000/svg">
 	<rect width="100" height="100" x="0" y="0" rx="5" ry="5" fill="Thistle" />
 	<rect width="98" height="100" x="101" y="0" rx="5" ry="5" fill="Lavender" />
 	<rect width="100" height="100" x="200" y="0" rx="5" ry="5" fill="PeachPuff" />
-	<text x="50,150,250" y="52"  dominant-baseline="central" text-anchor="middle" font-size="70" fill="red">
+	<text x="50,150,250" y="52,152,52"  dominant-baseline="central" text-anchor="middle" font-size="70" fill="red">
 		新思早
 	</text>
 </svg>
 "#;
 
 fn main() -> anyhow::Result<()> {
+
+
 	let reg = Handlebars::new();
 	let svg = SANDBOX.to_string();
 	println!("{}", &svg);

@@ -5,6 +5,9 @@ pub struct PixelCoord {
 }
 
 impl PixelCoord {
+	pub fn same_y(&self) -> (f32, f32) {
+		(self.x, self.y)
+	}
 	pub fn flip_y(&self) -> (f32, f32) {
 		(self.x, -self.y)
 	}

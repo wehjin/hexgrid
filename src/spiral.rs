@@ -1,13 +1,13 @@
-use crate::coordinates::hex_coord::HexCoord;
+use crate::coordinates::AxialCoord;
 
 pub struct HexSpiral {
-	center: HexCoord,
+	center: AxialCoord,
 	ring_radius: usize,
-	ring_iter: Option<Box<dyn Iterator<Item=HexCoord>>>,
+	ring_iter: Option<Box<dyn Iterator<Item=AxialCoord>>>,
 }
 
 impl Iterator for HexSpiral {
-	type Item = HexCoord;
+	type Item = AxialCoord;
 
 	fn next(&mut self) -> Option<Self::Item> {
 		if self.ring_radius == 0 {
@@ -33,7 +33,7 @@ impl Iterator for HexSpiral {
 }
 
 impl HexSpiral {
-	pub fn new(center: HexCoord) -> Self {
+	pub fn new(center: AxialCoord) -> Self {
 		HexSpiral { center, ring_radius: 0, ring_iter: None }
 	}
 }

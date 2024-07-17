@@ -1,4 +1,4 @@
-use crate::coordinates::hex_coord::HexCoord;
+use crate::coordinates::AxialCoord;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum HexDirection {
@@ -11,14 +11,14 @@ pub enum HexDirection {
 }
 
 impl HexDirection {
-	pub const fn to_vector(&self) -> HexCoord {
+	pub const fn to_vector(&self) -> AxialCoord {
 		match self {
-			HexDirection::South => HexCoord::new(0, 1),
-			HexDirection::SouthWest => HexCoord::new(-1, 1),
-			HexDirection::NorthWest => HexCoord::new(-1, 0),
-			HexDirection::North => HexCoord::new(0, -1),
-			HexDirection::NorthEast => HexCoord::new(1, -1),
-			HexDirection::SouthEast => HexCoord::new(1, 0),
+			HexDirection::South => AxialCoord::new(0, 1),
+			HexDirection::SouthWest => AxialCoord::new(-1, 1),
+			HexDirection::NorthWest => AxialCoord::new(-1, 0),
+			HexDirection::North => AxialCoord::new(0, -1),
+			HexDirection::NorthEast => AxialCoord::new(1, -1),
+			HexDirection::SouthEast => AxialCoord::new(1, 0),
 		}
 	}
 }
