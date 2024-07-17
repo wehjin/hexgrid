@@ -1,4 +1,4 @@
-use crate::HexCoord;
+use crate::coordinates::hex_coord::HexCoord;
 
 #[test]
 fn travel() {
