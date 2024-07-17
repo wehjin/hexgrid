@@ -3,4 +3,15 @@ name = "hexgrid"
 version = "0.1.0"
 edition = "2021"
 
+[[example]]
+name = "svg"
+path = "examples/svg/main.rs"
+
 [dependencies]
+
+[dev-dependencies]
+anyhow = "1.0.86"
+clap = { version = "4.5.9", features = ["derive"] }
+handlebars = "5.1.2"
+serde_json = "1.0.120"
+svg = "0.17.0"
