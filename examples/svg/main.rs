@@ -23,7 +23,7 @@ const CONTENT: &'static str = r#"
 	<circle cx="{{board-center}}" cy="{{board-center}}" r="{{half-spacing}}" fill="MintCream"/>
 	<rect width="98" height="{{spacing}}" x="101" y="0" rx="5" ry="5" fill="Lavender" />
 	<rect width="{{spacing}}" height="{{spacing}}" x="200" y="0" rx="5" ry="5" fill="PeachPuff" />
-	<text dominant-baseline="central" text-anchor="middle" fill="SeaGreen"
+	<text dominant-baseline="central" text-anchor="middle" fill="SeaGreen" text-rendering="optimizeLegibility"
 		x="{{x-list}}"
 		y="{{y-list}}"
 		font-size="{{font-size}}"
@@ -59,7 +59,9 @@ fn content(glyphs: impl AsRef<str>, hb: &Handlebars) -> anyhow::Result<String> {
 
 fn main() -> anyhow::Result<()> {
 	let hb = Handlebars::new();
-	let glyphs = "1234五六七八九十";
+	let glyphs = "\
+1234五六七八九十1234五六七八九十1234五六七八九十1234五六七八九十1234五六七八九十1234五六七八九十1234五六七八九十1234五六七八九十1234五六七八九十1234五六七八九十\
+";
 	let content = content(glyphs, &hb)?;
 	write_file(content.as_str())?;
 	Ok(())
