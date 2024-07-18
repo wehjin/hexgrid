@@ -21,12 +21,16 @@ struct Args {
 	/// Distance between cells.
 	#[arg(short, long, default_value = "100")]
 	spacing: usize,
+	/// Distance between cells.
+	#[arg(short, long, default_value = "gold")]
+	fill: String,
 }
 fn main() -> anyhow::Result<()> {
 	let args = Args::parse();
 	let text = args.text;
 	let limit = args.limit;
 	let spacing = args.spacing;
+	let fill = args.fill;
 
 	let mut chars = text.chars().collect::<Vec<_>>();
 	if limit < chars.len() {
@@ -34,7 +38,8 @@ fn main() -> anyhow::Result<()> {
 	}
 	let glyphs = chars.into_iter().collect::<String>();
 	let hb = Handlebars::new();
-	let (board_size, content) = content(&glyphs, spacing, &hb)?;
+	let (board_size, content) = content(&glyphs, spacing, fill, &hb)?;
+
 	let output_path = write_file(content.as_str())?;
 	println!("Wrote {}x{} board to SVG at {}", board_size, board_size, &output_path);
 	Ok(())
@@ -52,21 +57,23 @@ pub const SANDBOX: &'static str = r#"
 "#;
 const CONTENT: &'static str = r#"
 <svg width="{{board-size}}" height="{{board-size}}" xmlns="http://www.w3.org/2000/svg">
-	<rect width="{{board-size}}" height="{{board-size}}" x="0" y="0" rx="5" ry="5" fill="Thistle" />
+	<rect width="{{spacing}}" height="{{spacing}}" x="0" y="0" rx="5" ry="5" fill="Thistle" />
 	<circle cx="{{board-center}}" cy="{{board-center}}" r="{{half-spacing}}" fill="MintCream"/>
-	<rect width="98" height="{{spacing}}" x="101" y="0" rx="5" ry="5" fill="Lavender" />
+	<rect width="{{spacing}}" height="{{spacing}}" x="101" y="0" rx="5" ry="5" fill="Lavender" />
 	<rect width="{{spacing}}" height="{{spacing}}" x="200" y="0" rx="5" ry="5" fill="PeachPuff" />
-	<text dominant-baseline="central" text-anchor="middle" fill="SeaGreen" text-rendering="optimizeLegibility"
+	<text dominant-baseline="central" text-anchor="middle" text-rendering="optimizeLegibility"
 		x="{{x-list}}"
 		y="{{y-list}}"
 		font-size="{{font-size}}"
+		fill="{{fill}}"
 	>
 	{{glyphs}}
 	</text>
 </svg>
 "#;
 
-fn content(glyphs: impl AsRef<str>, spacing: usize, hb: &Handlebars) -> anyhow::Result<(usize, String)> {
+fn content(glyphs: impl AsRef<str>, spacing: usize, fill: impl AsRef<str>, hb: &Handlebars) -> anyhow::Result<(usize, String)> {
+	let fill = fill.as_ref();
 	let glyphs = glyphs.as_ref();
 	let grid = Grid::new(glyphs.chars().count());
 	let half_spacing = spacing / 2;
@@ -84,6 +91,7 @@ fn content(glyphs: impl AsRef<str>, spacing: usize, hb: &Handlebars) -> anyhow::
 		"glyphs" : glyphs,
 		"x-list": x_list,
 		"y-list": y_list,
+		"fill": fill,
 	});
 	let out = hb.render_template(CONTENT, &data)?;
 	Ok((board_size, out))
