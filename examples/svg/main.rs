@@ -34,9 +34,9 @@ fn main() -> anyhow::Result<()> {
 	}
 	let glyphs = chars.into_iter().collect::<String>();
 	let hb = Handlebars::new();
-	let content = content(&glyphs, spacing, &hb)?;
+	let (board_size, content) = content(&glyphs, spacing, &hb)?;
 	let output_path = write_file(content.as_str())?;
-	println!("Wrote to {}", &output_path);
+	println!("Wrote {}x{} board to SVG at {}", board_size, board_size, &output_path);
 	Ok(())
 }
 
@@ -66,7 +66,7 @@ const CONTENT: &'static str = r#"
 </svg>
 "#;
 
-fn content(glyphs: impl AsRef<str>, spacing: usize, hb: &Handlebars) -> anyhow::Result<String> {
+fn content(glyphs: impl AsRef<str>, spacing: usize, hb: &Handlebars) -> anyhow::Result<(usize, String)> {
 	let glyphs = glyphs.as_ref();
 	let grid = Grid::new(glyphs.chars().count());
 	let half_spacing = spacing / 2;
@@ -86,7 +86,7 @@ fn content(glyphs: impl AsRef<str>, spacing: usize, hb: &Handlebars) -> anyhow::
 		"y-list": y_list,
 	});
 	let out = hb.render_template(CONTENT, &data)?;
-	Ok(out)
+	Ok((board_size, out))
 }
 
 fn write_file(svg: &str) -> anyhow::Result<String> {
