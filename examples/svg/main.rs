@@ -1,10 +1,44 @@
 use std::fs::File;
 use std::io::Write;
 
+use clap::Parser;
 use handlebars::Handlebars;
 use serde_json::json;
 
 use hexgrid::Grid;
+
+/// An example program to produce an SVG with text arranged in
+/// a hex grid spiral.
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+	/// Text to arrange in a spiral hex pattern.
+	#[arg(default_value = "1234五六七八九十")]
+	text: String,
+	/// Number of times to greet.
+	#[arg(short, long, default_value = "5000")]
+	limit: usize,
+	/// Distance between cells.
+	#[arg(short, long, default_value = "100")]
+	spacing: usize,
+}
+fn main() -> anyhow::Result<()> {
+	let args = Args::parse();
+	let text = args.text;
+	let limit = args.limit;
+	let spacing = args.spacing;
+
+	let mut chars = text.chars().collect::<Vec<_>>();
+	if limit < chars.len() {
+		chars.truncate(limit);
+	}
+	let glyphs = chars.into_iter().collect::<String>();
+	let hb = Handlebars::new();
+	let content = content(&glyphs, spacing, &hb)?;
+	let output_path = write_file(content.as_str())?;
+	println!("Wrote to {}", &output_path);
+	Ok(())
+}
 
 pub const SANDBOX: &'static str = r#"
 <svg width="300" height="200" fill="lavender" xmlns="http://www.w3.org/2000/svg">
@@ -16,7 +50,6 @@ pub const SANDBOX: &'static str = r#"
 	</text>
 </svg>
 "#;
-
 const CONTENT: &'static str = r#"
 <svg width="{{board-size}}" height="{{board-size}}" xmlns="http://www.w3.org/2000/svg">
 	<rect width="{{board-size}}" height="{{board-size}}" x="0" y="0" rx="5" ry="5" fill="Thistle" />
@@ -32,10 +65,10 @@ const CONTENT: &'static str = r#"
 	</text>
 </svg>
 "#;
-fn content(glyphs: impl AsRef<str>, hb: &Handlebars) -> anyhow::Result<String> {
+
+fn content(glyphs: impl AsRef<str>, spacing: usize, hb: &Handlebars) -> anyhow::Result<String> {
 	let glyphs = glyphs.as_ref();
 	let grid = Grid::new(glyphs.chars().count());
-	let spacing = 100;
 	let half_spacing = spacing / 2;
 	let font_size = spacing * 7 / 10;
 	let (board_size, board_coords) = grid.to_board_coords(spacing);
@@ -53,22 +86,12 @@ fn content(glyphs: impl AsRef<str>, hb: &Handlebars) -> anyhow::Result<String> {
 		"y-list": y_list,
 	});
 	let out = hb.render_template(CONTENT, &data)?;
-	println!("CONTENT: {}", out);
 	Ok(out)
 }
 
-fn main() -> anyhow::Result<()> {
-	let hb = Handlebars::new();
-	let glyphs = "\
-1234五六七八九十1234五六七八九十1234五六七八九十1234五六七八九十1234五六七八九十1234五六七八九十1234五六七八九十1234五六七八九十1234五六七八九十1234五六七八九十\
-";
-	let content = content(glyphs, &hb)?;
-	write_file(content.as_str())?;
-	Ok(())
-}
-
-fn write_file(svg: &str) -> anyhow::Result<()> {
-	let mut file = File::create("examples/web/assets/spiral.svg")?;
+fn write_file(svg: &str) -> anyhow::Result<String> {
+	let path = "examples/web/assets/spiral.svg";
+	let mut file = File::create(path)?;
 	file.write_all(svg.as_bytes())?;
-	Ok(())
+	Ok(path.to_string())
 }
